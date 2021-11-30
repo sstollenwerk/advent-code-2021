@@ -1,5 +1,5 @@
 mod lib;
 
 fn main() {
-    println!( "{:?}",  lib::read_nums("input/test.txt") );
+    println!("{:?}", lib::read_day(0));
 }
