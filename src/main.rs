@@ -1,3 +1,5 @@
+mod lib;
+
 fn main() {
-    println!("Hello, world!");
+    println!( "{:?}",  lib::read_nums("input/test.txt") );
 }
