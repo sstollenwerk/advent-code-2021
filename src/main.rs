@@ -1,5 +1,6 @@
+mod day01;
 mod lib;
 
 fn main() {
-    println!("{:?}", lib::read_day(0));
+    println!("{:?}", day01::part1());
 }
