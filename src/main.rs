@@ -2,5 +2,5 @@ mod day01;
 mod lib;
 
 fn main() {
-    println!("{:?}", day01::part1());
+    println!("{:?}", day01::part2());
 }
