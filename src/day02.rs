@@ -37,3 +37,18 @@ pub fn part1() -> i32 {
 
     sum.re * sum.im
 }
+
+pub fn part2() -> i32 {
+    let mut aim = 0;
+    let mut position = Complex::new(0, 0);
+
+    for c in get_data().into_iter() {
+        aim += c.im;
+        // if forward, im is 0, += 0 does nothing
+        position += Complex::new(c.re, c.re * aim);
+        // if not forward, re is 0, += 0 does nothing
+        // in either case, no check is needed to see what direction it is.
+    }
+    let res = position;
+    res.re * res.im
+}

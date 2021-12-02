@@ -9,7 +9,7 @@ pub fn read_nums(filename: &str) -> Vec<i32> {
 }
 
 pub fn read_day(day: i32) -> Vec<i32> {
-    let filename = format!("input/{:0>2}.txt", day);
+    let filename = to_filename(day);
     read_nums(&filename)
 }
 
