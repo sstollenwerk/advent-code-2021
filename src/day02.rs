@@ -50,5 +50,24 @@ pub fn part2() -> i32 {
         // in either case, no check is needed to see what direction it is.
     }
     let res = position;
-    res.re * res.im
+    let ans = res.re * res.im;
+
+    assert_eq!(ans, part2func());
+    ans
+}
+
+fn part2func() -> i32 {
+    let aims = get_data().into_iter().map(|x| x.im).scan(0, |state, x| {
+        *state = *state + x;
+
+        Some(*state)
+    });
+
+    let pairs = aims.zip(get_data().into_iter().map(|x| x.re));
+
+    let vecs = pairs.map(|d| Complex::new(d.1, d.1 * d.0));
+
+    let sum: Complex<i32> = vecs.sum();
+
+    sum.re * sum.im
 }
