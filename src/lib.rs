@@ -16,3 +16,17 @@ pub fn read_day(day: i32) -> Vec<i32> {
 pub fn to_filename(day: i32) -> String {
     format!("input/{:0>2}.txt", day)
 }
+
+pub fn transpose<T: Copy + std::fmt::Debug>(vals: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    let mut res = Vec::new();
+
+    for k in (0..(vals[0].len())) {
+        let mut row = Vec::new();
+
+        for r in vals.iter() {
+            row.push(r[k]);
+        }
+        res.push(row);
+    }
+    res
+}
