@@ -80,9 +80,6 @@ fn score(b: &Bingo, c: i32) -> i32 {
 
 pub fn part1() -> i32 {
     let (calls, boxes) = get_data();
-    for b in boxes.iter() {
-        //  println!("{:?}", b);
-    }
 
     let mut boxes = boxes;
 
@@ -96,6 +93,27 @@ pub fn part1() -> i32 {
             let win = w.unwrap();
             println!("{:?}", win);
             return score(win, *c);
+        }
+    }
+
+    19
+}
+pub fn part2() -> i32 {
+    let (calls, boxes) = get_data();
+
+    let mut boxes = boxes;
+
+    for c in calls.iter() {
+        boxes = boxes.iter().map(|b| draw(b.to_vec(), *c)).collect();
+        if boxes.len() > 1 {
+            boxes.retain(|b| !victory(b));
+        }
+        if boxes.len() == 1 {
+            let poss = &boxes[0];
+            if victory(poss) {
+                println!("{:?}", poss);
+                return score(poss, *c);
+            }
         }
     }
 
