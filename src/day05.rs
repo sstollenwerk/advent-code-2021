@@ -40,11 +40,11 @@ fn diag(p: &Pair) -> bool {
     !(horiz(p) || vert(p))
 }
 
-fn ex_range(a: i32, b: i32) -> Range<i32> {
+fn ex_range<'a>(a: i32, b: i32) -> Box<dyn DoubleEndedIterator<Item = i32>> {
     if a > b {
-        ex_range(b, a)
+        Box::new(ex_range(b, a).rev())
     } else {
-        (a..(b + 1))
+        Box::new((a..(b + 1)))
     }
 }
 
@@ -56,8 +56,14 @@ fn places(p: &Pair) -> Vec<Place> {
         let (a, b) = (p.0 .0, p.1 .0);
         ex_range(a, b).map(|x| (x, p.0 .1)).collect()
     } else {
-        panic!()
+        ex_range(p.0 .0, p.1 .0)
+            .zip(ex_range(p.0 .1, p.1 .1))
+            .collect()
     }
+}
+
+fn upper_diag(p: &Pair) -> bool {
+    (p.0 .0 == p.1 .1) && (p.0 .1 == p.1 .0)
 }
 
 pub fn part1() -> i32 {
@@ -82,12 +88,13 @@ pub fn part2() -> i32 {
 
     //  lines.retain( |x| !diag(x) );
 
-    println!("{:?}", lines);
+    let positions = lines
+        .iter()
+        .map(|p| places(p))
+        .flatten()
+        .collect::<Counter<_>>();
 
-    let places = lines.iter().map(|p| places(p)).flatten();
-
-    places
-        .collect::<Counter<_>>()
+    positions
         .values()
         .map(|x| *x as i32)
         .filter(|x| x > &1)
