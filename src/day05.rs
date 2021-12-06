@@ -86,6 +86,9 @@ pub fn part1() -> i32 {
 pub fn part2() -> i32 {
     let mut lines = get_data();
 
+    println!("{:?}", (2..=10).collect::<Vec<i32>>() );
+    println!("{:?}", (10..=2).collect::<Vec<i32>>() );
+
     //  lines.retain( |x| !diag(x) );
 
     let positions = lines
