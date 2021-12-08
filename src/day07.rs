@@ -1,8 +1,6 @@
 use crate::lib::to_filename;
 use std::fs;
 
-use math::mean;
-
 fn get_data() -> Vec<i32> {
     read_row(
         fs::read_to_string(to_filename(7))
@@ -24,8 +22,7 @@ fn dist_old(places: &Vec<i32>, n: i32) -> i32 {
 pub fn part1() -> i32 {
     let places = get_data();
     //   let places = vec![16,1,2,0,4,2,7,1,2,14];
-    let m = mean::arithmetic(&places.iter().map(|x| *x as f64).collect::<Vec<_>>()).round() as i32;
-    // turned out to not be the correct way to solve the problem.
+    // tried finding mean, turned out to not be the correct way to solve the problem.
 
     let r = (places.iter().min().unwrap() + 0..(places.iter().max().unwrap()) + 1);
     let m = r.min_by_key(|x| dist_old(&places, *x)).unwrap();
