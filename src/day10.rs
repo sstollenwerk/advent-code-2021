@@ -4,10 +4,12 @@ use std::fs;
 
 use std::collections::HashMap;
 
-type Closed = bool;
-type Score = i32;
+use itertools::Itertools;
 
-type Value = (char, Closed, Score);
+type Closed = bool;
+type Score = i64;
+
+type Value = (char, Closed, Score, Score);
 type Row = Vec<Value>;
 
 fn get_data() -> Vec<Row> {
@@ -25,11 +27,16 @@ fn read_row(row: &str) -> Row {
 fn read_char(c: &char) -> Value {
     let convs = HashMap::from([(')', '('), (']', '['), ('}', '{'), ('>', '<')]);
 
-    let scores = HashMap::from([('(', 3), ('[', 57), ('{', 1197), ('<', 25137)]);
+    let scores = HashMap::from([
+        ('(', (3, 1)),
+        ('[', (57, 2)),
+        ('{', (1197, 3)),
+        ('<', (25137, 4)),
+    ]);
     let closed = convs.contains_key(c);
     let c_ = *convs.get(&c).unwrap_or(c);
     let score = *scores.get(&c_).unwrap();
-    (c_, closed, score)
+    (c_, closed, score.0, score.1)
 }
 
 fn parse(row: Row) -> Result<Row, Value> {
@@ -51,12 +58,37 @@ pub fn part1() -> Score {
     let rows = get_data();
     let errs = rows
         .iter()
-        .map(|r|  parse(r.to_vec()) )
+        .map(|r| parse(r.to_vec()))
         .filter(|r| r.is_err())
         .map(|x| x.unwrap_err());
     errs.map(|r| r.2).sum()
 }
 
+fn get_complete_score(r: Row) -> Score {
+    let scores = r.iter().map(|r| r.3).rev().collect::<Vec<Score>>();
+
+    let mut score = 0;
+    for n in scores {
+        score *= 5;
+        score += n;
+    }
+    score
+}
+
+fn median(mut vals: Vec<Score>) -> Score {
+    vals.sort();
+    let k = vals.len() / 2;
+    vals[k]
+}
+
 pub fn part2() -> Score {
-    0
+    let rows = get_data();
+    let corrects = rows
+        .iter()
+        .map(|r| parse(r.to_vec()))
+        .filter_map(|r| r.ok());
+    let scores: Vec<Score> = corrects.map(|r| get_complete_score(r)).collect();
+    println!("{:?}", scores);
+
+    median(scores)
 }
