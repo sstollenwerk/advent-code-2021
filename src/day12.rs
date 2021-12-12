@@ -42,11 +42,11 @@ fn read_row(row: &str) -> Edge {
     (data[0].to_string(), data[1].to_string())
 }
 
-fn paths(graph: &Digraph, start: &Node, end: &Node) -> Vec<Path> {
+fn paths(graph: &Digraph, start: &Node, end: &Node) -> Res {
     if start == end {
-        return vec![vec![start.to_string()]];
+        return 1;
     }
-    let mut res: Vec<Path> = Vec::new();
+    let mut res: Res = 0;
 
     let nexts = graph.get(&start.clone()).unwrap_or(&Vec::new()).to_vec();
 
@@ -59,12 +59,10 @@ fn paths(graph: &Digraph, start: &Node, end: &Node) -> Vec<Path> {
         // not sure if that'll work
     }
     for n in nexts.iter() {
-        let mut paths_: Vec<Path> = paths(&g, n, &end.clone());
-        for r in paths_.iter_mut() {
-            r.push(start.to_string());
-            res.push(r.to_vec());
-        }
+        let paths_ = paths(&g, n, &end.clone());
+        res += paths_
     }
+
     res
 }
 
@@ -116,7 +114,7 @@ fn paths2(graph: &Digraph, start: &Node, end: &Node, prev: &Path) -> Vec<Path> {
 pub fn part1() -> Res {
     let graph = get_data();
     println!("{:?}", graph);
-    paths(&graph, &"start".to_string(), &"end".to_string()).len() as Res
+    paths(&graph, &"start".to_string(), &"end".to_string())
 }
 
 pub fn part2() -> Res {
