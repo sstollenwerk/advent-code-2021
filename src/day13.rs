@@ -73,7 +73,6 @@ fn translocate(p: Place, f: Fold) -> Place {
 fn make_fold(grid: Grid, f: Fold) -> Grid {
     let mut res = HashSet::new();
     for p in grid.into_iter() {
-
         res.insert(translocate(p, f));
     }
     res
@@ -101,7 +100,7 @@ fn display(grid: Grid) -> () {
     }
 
     for r in rows.iter() {
-        println!("{:?}", r);
+        println!("{:?}", r.into_iter().collect::<String>());
     }
 }
 
