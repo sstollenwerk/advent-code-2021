@@ -28,12 +28,7 @@ fn get_data() -> (Grid, Vec<Fold>) {
         .lines()
         .filter(|s| s.len() > 0)
         .map(|s| read_row(s))
-        .partition_map(
-            |r| r, //          match r {
-                   //         itertools::Either::Left(v) => itertools::Either::Left(v),
-                   //          itertools::Either::Right(v) => itertools::Either::Right(v),
-                   // }
-        );
+        .partition_map(|r| r);
 
     let grid: Grid = grid_.into_iter().collect();
     (grid, folds)
@@ -78,10 +73,8 @@ fn translocate(p: Place, f: Fold) -> Place {
 fn make_fold(grid: Grid, f: Fold) -> Grid {
     let mut res = HashSet::new();
     for p in grid.into_iter() {
-        let k = translocate(p, f);
-        //println!("{:?}", (p,k,f)  );
 
-        res.insert(k);
+        res.insert(translocate(p, f));
     }
     res
 }
@@ -114,10 +107,7 @@ fn display(grid: Grid) -> () {
 
 pub fn part1() -> Res {
     let (grid, folds) = get_data();
-    println!("{:?}", grid);
-    println!("{:?}", grid.len());
     let res = make_fold(grid, folds[0]);
-    println!("{:?}", res);
     res.len() as Res
 }
 pub fn part2() -> Res {
@@ -126,7 +116,6 @@ pub fn part2() -> Res {
     for f in folds.into_iter() {
         grid = make_fold(grid, f);
     }
-    println!("{:?}", grid);
     display(grid);
     0
 }
