@@ -29,10 +29,7 @@ fn get_data() -> (Line, Inserts) {
 
 fn read_row(row: &str) -> Either<Line, (Line, Line)> {
     if row.contains(" -> ") {
-        let data = row
-            .split(" -> ")
-            //  .map(|s| s.parse::<Position>().unwrap())
-            .collect::<Vec<_>>();
+        let data = row.split(" -> ").collect::<Vec<_>>();
         return itertools::Either::Right((data[0].to_string(), data[1].to_string()));
     } else {
         return itertools::Either::Left(row.to_string());
@@ -59,7 +56,7 @@ fn amounts(line: Line, steps: u32, changes: &Inserts) -> Counter<char> {
     let size = 2;
     let k = line.len();
 
-    let amts_start: Counter<String> = (0..=line.len() - size)
+    let amts_start: Counter<String> = (0..=k - size)
         .map(|i| (&line[i..i + size]).to_string())
         .collect();
 
@@ -85,15 +82,7 @@ fn step(line: Line, changes: &Inserts) -> Line {
     let size = 2;
     let k = line.len();
 
-    let amts_start: Counter<String> = (0..=line.len() - size)
-        .map(|i| (&line[i..i + size]).to_string())
-        .collect();
-
     let mut inserts = (0..=k - size).map(|i| changes.get(&line[i..i + size]));
-
-    //  .collect::Vec<Option<&Line>>();
-
-    //   assert_eq(line.len(), inserts.len() + 1);
 
     let mut chars_ = line.chars();
 
@@ -109,23 +98,6 @@ fn step(line: Line, changes: &Inserts) -> Line {
         }
         res.push(chars_.next().unwrap());
     }
-
-    let amts_end: Counter<String> = (0..=res.len() - size)
-        .map(|i| (&res[i..i + size]).to_string())
-        .collect();
-    // println!("{:?}", amts);
-    // let amts_ = amts.iter().sorted().collect::<Vec<_>>();
-    println!("{:?}", amts_end.iter().sorted().collect::<Vec<_>>());
-    let b = pairwise(amts_start, changes);
-    println!("{:?}", b.iter().sorted().collect::<Vec<_>>());
-    println!("{:?}", "");
-
-    //   println!("{:?}", amts_);
-
-    //let   amts_ = amts.iter().sorted().collect::<Vec<_>>();
-    //    println!("{:?}", amts);
-    //    println!("{:?}", amts_);
-    //    println!("{:?}", res.len() );
 
     res
 }
