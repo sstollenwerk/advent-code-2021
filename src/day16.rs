@@ -40,7 +40,7 @@ fn read_row(row: &str) -> Vec<bool> {
 }
 
 fn as_base(data: &Vec<Literal>, base: Literal) -> Literal {
-  //  println!("{:?}", ( data, base) );
+    //  println!("{:?}", ( data, base) );
     let mut res = 0;
     for i in data {
         res *= base;
@@ -54,7 +54,7 @@ fn from_bin(n: &[bool]) -> Literal {
 }
 
 fn parse(data: &[bool]) -> Vec<Packet> {
-  // println!("{:?}", data);
+    // println!("{:?}", data);
     if data.is_empty() || data.len() < 8 {
         return Vec::new();
     }
@@ -70,7 +70,7 @@ fn parse(data: &[bool]) -> Vec<Packet> {
             let (a, b) = c.split_at(1);
             num.append(&mut b.to_vec());
             i += 5;
-            if !c[0] {
+            if !a[0] {
                 break;
             }
         }
@@ -94,42 +94,65 @@ fn parse(data: &[bool]) -> Vec<Packet> {
                 id,
                 itertools::Either::Right(parse(contained)),
             )];
-                res.append(&mut parse(rest)) ;
+            res.append(&mut parse(rest));
             return res;
         } else {
             let (size, rest) = rest.split_at(11);
             let size = from_bin(size);
             let part = parse(rest);
             let (contained, rest) = part.split_at(size as usize);
-            let mut res = vec![Packet::new(ver, id, itertools::Either::Right(contained.to_vec() ))];
+            let mut res = vec![Packet::new(
+                ver,
+                id,
+                itertools::Either::Right(contained.to_vec()),
+            )];
             res.append(&mut rest.to_vec());
             return res;
         }
     }
 }
 fn version_sum(packets: Vec<Packet>) -> Version {
-
     let mut total: Version = 0;
     for p in packets.into_iter() {
         let data = p.data;
         total += p.ver;
-      total +=   match   data {
-        itertools::Either::Right(d) => version_sum(d),
-        itertools::Either::Left(_) =>0,
-
-      }
+        total += match data {
+            itertools::Either::Right(d) => version_sum(d),
+            itertools::Either::Left(_) => 0,
+        }
     }
     total
 }
 
+fn interpret(packet: Packet) -> Literal {
+    let vals : Vec<Literal> = packet.data.clone().right().unwrap_or(vec![]).into_iter().map(|p| interpret(p)).collect();
+    let a = vals.iter();
+    let res = match packet.id {
+        4 => packet.data.left().unwrap(),
+
+        0 => a.sum(),
+        1 => a.product(),
+        2 => *a.min().unwrap(),
+        3 => *a.max().unwrap(),
+        5 => (vals[0] > vals[1] ) as Literal,
+        6 => (vals[0] < vals[1] ) as Literal,
+        7 => (vals[0] == vals[1] ) as Literal,
+        _ => panic!(),
+    };
+    res
+}
+
 pub fn part1() -> Version {
     let row = get_data();
- //   println!("{:?}", row);
+    //   println!("{:?}", row);
     let res = parse(&row[..]);
-   // println!("{:?}",res );
+    // println!("{:?}",res );
 
     version_sum(res)
 }
-pub fn part2() -> Version {
-    0
+pub fn part2() -> Literal {
+    let row = get_data();
+    let res = parse(&row[..]);
+
+    res.into_iter().map(|p| interpret(p)).sum()
 }
