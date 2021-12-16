@@ -3,6 +3,7 @@ use crate::lib::to_filename;
 use std::fs;
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use cached::proc_macro::cached;
 use num_complex::Complex;
@@ -48,17 +49,72 @@ fn as_grid(g: &HashGrid) -> Grid {
 fn as_hashable(g: &Grid) -> HashGrid {
     g.into_iter().map(|c| (*c.0, *c.1)).collect()
 }
-fn lowest_cost(g: Grid, start: Place, end: Place) -> Cost {
+
+fn dijkastra(g: Grid) -> Cost {
+    let mut unvisited: HashSet<Place> = g.keys().map(|c| *c).collect();
+
+    let mut to_visit: HashSet<Place> = HashSet::new();
+
+    let start = Complex::new(0, 0);
+    let end = get_goal(&g);
+
+    let mut costs: HashMap<Place, Cost> = HashMap::new();
+    costs.insert(start, 0);
+
+    let dirs = vec![
+        Complex::new(0, 1),
+        Complex::new(1, 0),
+        Complex::new(0, -1),
+        Complex::new(-1, 0),
+    ];
+
+    let mut node = start;
+
+    loop {
+        let cost = costs[&node];
+        let nexts = dirs
+            .iter()
+            .map(|c| *c + node)
+            .filter(|c| g.contains_key(&c)).filter(|c| unvisited.contains(&c) );
+
+        for n in nexts {
+            to_visit.insert(n);
+            let current = costs.entry(n).or_insert(Cost::MAX);
+            *current = *current.min(&mut ( cost + g[&n] ));
+        }
+        if node == end {
+            break;
+        }
+
+        unvisited.remove(&node);
+        to_visit.remove(&node);
+
+        println!("{:?}", to_visit.len() );
+
+
+        if let Some(n_) = to_visit
+            .iter()
+            .min_by_key(|c| costs[c])
+        {
+            node = *n_;
+        } else {
+            break;
+        }
+    }
+    costs[&end]
+}
+
+fn lowest_cost(g: Grid) -> Cost {
     let mut places: Vec<Place> = g.keys().map(|c| *c).collect();
     places.sort_by_key(|c| (c.re, c.im));
     places.reverse();
+    let start = Complex::new(0, 0);
+    let end = places[0];
 
     let mut costs: HashMap<Place, Cost> = HashMap::new();
     costs.insert(end, 0);
 
     let dirs = vec![Complex::new(0, 1), Complex::new(1, 0)];
-
-    println!("{:?}", places);
 
     for p in places.into_iter() {
         if costs.contains_key(&p) {
@@ -66,46 +122,52 @@ fn lowest_cost(g: Grid, start: Place, end: Place) -> Cost {
         }
         let nexts = dirs.iter().map(|c| *c + p).filter(|c| g.contains_key(&c));
 
-        //     println!("{:?}",costs);
-        //       println!("{:?}",nexts);
-        //         println!("{:?}",p);
-
         let res = nexts.map(|c| g[&c] + costs[&c]).min().unwrap();
 
         costs.insert(p, res);
     }
     costs[&start]
 }
+fn extend(g: &Grid, size: u32) -> Grid {
+    let mut dupes = Vec::new();
 
-/*
-#[cached]
-fn lowest_cost(g_: HashGrid, start: Place, end: Place) -> Option<Cost> {
-    if start == end {
-        return Some(0);
+    for i in (0..size) {
+        for j in (0..size) {
+            dupes.push((i as u32, j as u32))
+        }
+    }
+    let mut res = HashMap::new();
+
+    let bottom = get_goal(&g);
+    let (a, b) = (bottom.re + 1, bottom.im + 1);
+
+    for (k, v) in g.iter() {
+        for delta in dupes.iter() {
+            let s = ((*v + (delta.0 + delta.1) - 1) % 9) + 1;
+            let d = Complex::new(a * (delta.0 as i32), b * (delta.1 as i32));
+            let pos = *k + d;
+            res.insert(pos, s);
+            //    println!("{:?}",(k,v,pos, s));
+        }
+        // panic!()
     }
 
-    let g = as_grid(g_);
-
-    let dirs = vec![Complex::new(0, 1), Complex::new(1, 0)];
-    let nexts = dirs
-        .into_iter()
-        .map(|c| c + start)
-        .filter(|c| g.contains_key(&c));
-
-    nexts
-        .into_iter()
-        .map(|c| g[&c] + lowest_cost(g_, c, end).unwrap())
-        .min()
+    res
 }
-*/
-// couldn't get it to work
+
 pub fn part1() -> Cost {
     let grid = get_data();
+
     let goal = get_goal(&grid);
     let start = Complex::new(0, 0);
 
-    lowest_cost(grid, start, goal)
+    dijkastra(grid)
 }
 pub fn part2() -> Cost {
-    0
+    let grid = extend(&get_data(), 5);
+    let goal = get_goal(&grid);
+
+    let start = Complex::new(0, 0);
+
+    dijkastra(grid)
 }
