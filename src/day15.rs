@@ -89,7 +89,6 @@ fn dijkastra(g: Grid) -> Cost {
         unvisited.remove(&node);
         to_visit.remove(&node);
 
-        println!("{:?}", to_visit.len() );
 
 
         if let Some(n_) = to_visit
@@ -101,7 +100,9 @@ fn dijkastra(g: Grid) -> Cost {
             break;
         }
     }
-    costs[&end]
+   let res =  costs[&end];
+   display(costs);
+   res
 }
 
 fn lowest_cost(g: Grid) -> Cost {
@@ -152,7 +153,35 @@ fn extend(g: &Grid, size: u32) -> Grid {
         // panic!()
     }
 
+    
+
     res
+}
+
+fn display(grid:Grid) -> () {
+    let vals = grid
+        .keys()
+        .map(|c| (c.re as usize, c.im as usize))
+        .collect::<Vec<_>>();
+    let y_ = vals.iter().map(|t| t.0).max().unwrap();
+    let x_ = vals.iter().map(|t| t.1).max().unwrap();
+
+    let mut row = Vec::new();
+    for _ in (0..=y_) {
+        row.push(0)
+    }
+
+    let mut rows = Vec::new();
+    for _ in (0..=x_) {
+        rows.push(row.clone())
+    }
+    for (a, b) in vals.into_iter() {
+        rows[b][a] = grid[&Complex::new(a as i32,b as i32)]
+    }
+
+    for r in rows.iter() {
+        println!("{:?}", r);
+    }
 }
 
 pub fn part1() -> Cost {
@@ -161,13 +190,15 @@ pub fn part1() -> Cost {
     let goal = get_goal(&grid);
     let start = Complex::new(0, 0);
 
-    dijkastra(grid)
+
+   // lowest_cost(grid)
+   dijkastra(grid)
 }
 pub fn part2() -> Cost {
     let grid = extend(&get_data(), 5);
     let goal = get_goal(&grid);
 
     let start = Complex::new(0, 0);
-
     dijkastra(grid)
+
 }
