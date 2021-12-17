@@ -37,7 +37,6 @@ fn read_row(row: &str) -> Target {
 }
 
 fn make_range(row: &str) -> NumRange {
-    println!("{:?}", row);
     let mut parts: Vec<Num> = row.split("..").map(|n| n.parse::<Num>().unwrap()).collect();
     parts.sort();
     (parts[0], parts[1])
@@ -71,7 +70,6 @@ fn shoot(mut trajectory: Position, t: &Target) -> Option<Num> {
         }
         pos += trajectory;
         trajectory = adj_delta(&trajectory);
-        println!("{:?}", (pos, trajectory));
     }
     return None;
 }
@@ -79,18 +77,21 @@ fn shoot(mut trajectory: Position, t: &Target) -> Option<Num> {
 fn y_at_step(y: Num, step: Num) -> Num {
     y * (step + 1) - (step * (step + 1)) / 2
 }
+fn limit(x:Num) -> Num {
+    (x * (x + 1)) / 2
+
+}
 
 fn x_could_reach(t: &Target) -> HashMap<Num, HashSet<Num>> {
     let (x_, y_) = t;
     let t_ = (*x_, (Num::MIN, 0));
 
- //   let lower_limit = ((t.0 .0 * 2) as f64).sqrt() as Num;
- println!("{:?}", (lower_limit, t));
+    let lower_limit = ((t.0 .0 * 2) as f64).sqrt() as Num;
     let mut res = HashMap::new();
     for x in (lower_limit..=t.0 .1) {
         let mut pos = Position::new(0, 0);
         let mut vel = Position::new(x, 0);
-        for i in (0..x) {
+        for i in (0.. x + t.0.0.abs()*  10 ) {
             pos += vel;
             vel = adj_delta(&vel);
             if hit(&pos, &t_) {
@@ -102,15 +103,37 @@ fn x_could_reach(t: &Target) -> HashMap<Num, HashSet<Num>> {
 
     res
 }
+fn all_y_could_reach(t: &Target) -> HashMap<Num, HashSet<Num>> {
+    let (x_, y_) = t;
+    let t_ = ((Num::MIN, 0), *y_);
+    let lower_limit = cmp::min(0, y_.0);
+    let upper_limit = cmp::max(0, y_.1.abs() );
+    println!("{:?}", (lower_limit, upper_limit));
+
+    let mut res = HashMap::new();
+    for y in (lower_limit..=upper_limit) {
+        let mut pos = Position::new(0, 0);
+        let mut vel = Position::new(0, y);
+        for i in (0..upper_limit*2) {
+            pos += vel;
+            vel = adj_delta(&vel);
+            if hit(&pos, &t_) {
+                let mut vals = res.entry(y).or_insert(HashSet::new());
+                vals.insert(i);
+            }
+        }
+    }
+
+    res}
+
 
 fn y_could_reach(t: &Target, step: Num) -> HashSet<Num> {
     let (x_, y_) = t;
     let t_ = ((Num::MIN, 0), *y_);
 
     let lower_limit = cmp::min(0, y_.0);
-    println!("{:?}", (lower_limit, t));
     let mut res = HashSet::new();
-    for y in (lower_limit..=cmp::max(step, y_.1)*10) {
+    for y in (lower_limit..=cmp::max(step, y_.1.abs() )*10) {
         let pos = Position::new(0, y_at_step(y, step));
 
         if hit(&pos, &t_) {
@@ -127,6 +150,7 @@ fn highest_shot(t: &Target) -> Num {
 
        let  ys = y_could_reach(t, step );
         for y in ys {
+
             heights.insert(y_at_step( y, y ) );
         }
 
@@ -135,17 +159,20 @@ fn highest_shot(t: &Target) -> Num {
 }
 
 fn num_shots(t: &Target) -> Num {
-    let mut shots: Vec<Position>  = Vec::new();
-    for (x, steps) in x_could_reach(&t).iter() { 
-        for s in steps.into_iter() {
-            for y in y_could_reach(t, *s ) {
-                shots.push(    Position::new(*x,y));
+    let mut shots: HashSet<Position>  = HashSet::new();
+  for (x, steps) in x_could_reach(&t).iter() { 
+  //      for (x, steps) in HashMap::from([ (6, vec![4,5] ) ]) .iter() {
+             
+            for step in steps.into_iter() {
+
+            for y in y_could_reach(t, *step ) {
+                shots.insert(    Position::new(*x,y));
             } 
         }
     }
-    shots.sort_by_key(|c| (c.re, c.im) );
+ //   shots.sort_by_key(|c| (c.re, c.im) );
 
-    println!("{:?}", shots);
+   // println!("{:?}", shots);
 
     shots.len() as Num
 
@@ -153,18 +180,18 @@ fn num_shots(t: &Target) -> Num {
 
 pub fn part1() -> Num {
     let target = get_data();
-    println!("{:?}", target);
-    println!("{:?}", shoot(Position::new(7, 2), &target));
-    println!("{:?}", shoot(Position::new(6, 9), &target));
-    println!("{:?}", shoot(Position::new(17, -4), &target));
-    println!("{:?}", shoot(Position::new(0, 0), &target));
+
     let x = x_could_reach(&target);
     println!("{:?}", x);
-    println!("{:?}", y_could_reach(&target, 3));
+
+
     highest_shot(&target)
 
 }
 pub fn part2() -> Num {
     let target = get_data();
+
+    let y = all_y_could_reach(&target);
+    println!("{:?}", y);
     num_shots(&target)
 }
