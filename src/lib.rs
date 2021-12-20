@@ -30,3 +30,16 @@ pub fn transpose<T: Copy + std::fmt::Debug>(vals: &Vec<Vec<T>>) -> Vec<Vec<T>> {
     }
     res
 }
+
+/*
+fn as_base(data: &Vec<T>, base: T) -> T {
+    //  println!("{:?}", ( data, base) );
+    let mut res  = 0;
+    for i in data {
+        res *= base;
+        res += *i;
+    }
+    res
+}
+*/
+// doing funcs on generic ints is hard
