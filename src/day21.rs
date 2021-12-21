@@ -15,7 +15,7 @@ type Num = u64;
 
 type Position = Num;
 type Score = Num;
-type State = (Position, Score )
+type State = (Position, Score);
 
 fn ceilmod(n: Num, mod_: Num) -> Num {
     let k = n % mod_;
@@ -40,8 +40,8 @@ fn read_row(row: &str) -> Num {
     row.chars().last().unwrap().to_digit(10).unwrap().into()
 }
 
-fn game(p1_:Num, p2_:Num) -> Num {
-    let mut data = vec![(p1_, 0), (p2_, 0) ];
+fn game(p1_: Num, p2_: Num) -> Num {
+    let mut data = vec![(p1_, 0), (p2_, 0)];
     // (position, score)
     let mut dice = (1..=100).cycle();
     let mut rolled = 0;
@@ -52,27 +52,23 @@ fn game(p1_:Num, p2_:Num) -> Num {
         for _ in (0..3) {
             move_ += dice.next().unwrap();
             rolled += 1;
-
         }
-        let pos = ceilmod(pos+ move_, 10);
+        let pos = ceilmod(pos + move_, 10);
         let score = score + pos;
         if score >= 1000 {
-        break 
+            break;
+        } else {
+            data.push((pos, score))
         }
-        else {
-            data.push( (pos, score)  )
-        }
-
     }
-    (rolled * (data.pop().unwrap().1  )  )
-
+    (rolled * (data.pop().unwrap().1))
 }
 
 pub fn part1() -> Num {
     let vals = get_data();
     println!("{:?}", vals);
     game(vals.0, vals.1)
-   // todo!();
+    // todo!();
 }
 pub fn part2() -> Num {
     todo!();
