@@ -1,8 +1,8 @@
 #![allow(unused_parens)]
 
-mod day20;
+mod day21;
 mod lib;
-use day20::{part1, part2};
+use day21::{part1, part2};
 
 fn main() {
     println!("{:?}", part1());
