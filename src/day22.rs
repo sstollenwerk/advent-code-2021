@@ -1,6 +1,7 @@
 use crate::lib::to_filename;
 use crate::lib::transpose;
 
+use std::cmp;
 use std::fs;
 
 //use std::collections::HashMap;
@@ -71,6 +72,63 @@ fn all_cubes(c: CubeRange) -> HashSet<Cube> {
     res
 }
 
+fn intersection(a: CubeRange, b: CubeRange) -> Option<CubeRange> {
+    let a = [a.0, a.1, a.2];
+    let b = [b.0, b.1, b.2];
+    let mut intersections = Vec::new();
+    for p in a.into_iter().zip(b.into_iter()) {
+        let (a0, a1) = p.0;
+        assert!(a0 <= a1);
+        let (b0, b1) = p.1;
+        assert!(b0 <= b1);
+
+        let (c, d) = (cmp::max(a0, b0), cmp::min(a1, b1));
+        if c > d {
+            return None;
+        } else {
+            intersections.push((c, d));
+        }
+    }
+
+    Some((intersections[0], intersections[1], intersections[2]))
+}
+
+fn initialization_efficient(rows: &Vec<Row>) -> Num {
+    let mut cuboids: Vec<CubeRange> = Vec::new();
+    let mut intersections: Vec<CubeRange> = Vec::new();
+    for r in rows.iter() {
+        let (state, row) = r;
+        let mut new_cubes = Vec::new();
+        let mut new_intersections = Vec::new();
+        for c in cuboids.iter() {
+            if let Some(k) = intersection(*row, *c) {
+                new_intersections.push(k)
+            }
+        }
+
+        for c in intersections.iter() {
+            if let Some(k) = intersection(*row, *c) {
+                new_cubes.push(k)
+            }
+        }
+        match state {
+            State::On => cuboids.push(*row),
+            State::Off => (),
+        };
+
+        cuboids.append(&mut new_cubes);
+        intersections.append(&mut new_intersections);
+
+     //   println!("{:?}", r);
+     //   println!("{:?}", cuboids);
+    //    println!("{:?}", intersections);
+
+    //    println!("");
+    }
+
+    cuboids.into_iter().map(|c| size(c)).sum::<Num>()
+        - intersections.into_iter().map(|c| size(c)).sum::<Num>()
+}
 fn initialization_brute_force(rows: &Vec<Row>) -> Num {
     let mut res: HashSet<Cube> = HashSet::new();
 
@@ -85,14 +143,29 @@ fn initialization_brute_force(rows: &Vec<Row>) -> Num {
     res.len().try_into().unwrap()
 }
 
+fn size(c: CubeRange) -> Num {
+    vec![c.0, c.1, c.2]
+        .into_iter()
+        .map(|p| (p.1 - p.0 + 1))
+        .product()
+}
+
 pub fn part1() -> Num {
     let mut vals = get_data();
+
     vals.retain(|p| keep(*p));
 
-    initialization_brute_force(&vals)
-   // todo!();
+  //  let vals = vec![vals[10], vals[0], vals[10], vals[0], vals[10], vals[10], vals[10], vals[1], vals[3] ];
+    //println!("{:?}", vals);
+
+
+    assert_eq!(initialization_efficient(&vals),initialization_brute_force(&vals)  );
+
+    initialization_efficient(&vals)
+    // todo!();
 }
 pub fn part2() -> Num {
-    // let vals = get_data();
-    todo!();
+    let  vals = get_data();
+
+    initialization_efficient(&vals)
 }
