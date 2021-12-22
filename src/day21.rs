@@ -6,7 +6,7 @@ use std::fs;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use itertools::Itertools;
+use itertools::{iproduct, Itertools};
 
 use cached::proc_macro::cached;
 use num_complex::Complex;
@@ -16,6 +16,8 @@ type Num = u64;
 type Position = Num;
 type Score = Num;
 type State = (Position, Score);
+
+type TotalWins = Complex<Num>;
 
 fn ceilmod(n: Num, mod_: Num) -> Num {
     let k = n % mod_;
@@ -64,6 +66,28 @@ fn game(p1_: Num, p2_: Num) -> Num {
     (rolled * (data.pop().unwrap().1))
 }
 
+#[cached]
+fn game_real(p1: State, p2: State) -> TotalWins {
+    let mut wins = TotalWins::new(0,0);
+    let vals = [1, 2, 3];
+    let (pos, score) = p1;
+    for n in iproduct!(vals.iter(), vals.iter(), vals.iter()) {
+        let move_ = n.0 + n.1 + n.2;
+        let pos_ = ceilmod(pos + move_, 10);
+        let score_ = score + pos_;
+        if score_ >= 21 {
+            wins += TotalWins::new(1,0);
+        }
+        else {
+            let v = game_real(p2, (pos_,score_ ) );
+            wins += TotalWins::new(v.im,v.re);
+        //    wins += v;
+    }
+
+    }
+    wins
+}
+
 pub fn part1() -> Num {
     let vals = get_data();
     println!("{:?}", vals);
@@ -71,5 +95,10 @@ pub fn part1() -> Num {
     // todo!();
 }
 pub fn part2() -> Num {
-    todo!();
+    let vals = get_data();
+    println!("{:?}", vals);
+  let res =   game_real( (vals.0, 0), (vals.1, 0) );
+  println!("{:?}", res);
+  *vec![res.re, res.im].iter().max().unwrap()
+
 }
