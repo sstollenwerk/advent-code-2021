@@ -117,9 +117,10 @@ fn temp_allowed_positions(amphs: &AmphLocs) -> HashSet<Place> {
 fn allowed_positions(amphs: &AmphLocs) -> HashSet<Place> {
     let mut cant_move_to = amphs.concat();
     cant_move_to.append(&mut vec![
-        Place::new(1, 4),
-        Place::new(1, 6),
-        Place::new(1, 8),
+        Place::new(1, 3),
+        Place::new(1, 5),
+        Place::new(1, 7),
+        Place::new(1, 9),
     ]);
     let cant_move_to: HashSet<Place> = cant_move_to.iter().map(|x| *x).collect::<HashSet<_>>();
     (*CAN_MOVE_ON)
@@ -291,10 +292,11 @@ pub fn part1() -> Num {
             display(&i);
         }
         println!("{:?}", b);
+        return b
     }
     //    println!("{:?}", astar(&amphs, poss_moves,heuristic,  |a| *a == desired));
 
-    todo!();
+    panic!();
 }
 pub fn part2() -> Num {
     todo!();
