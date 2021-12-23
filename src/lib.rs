@@ -31,6 +31,12 @@ pub fn transpose<T: Copy + std::fmt::Debug>(vals: &Vec<Vec<T>>) -> Vec<Vec<T>> {
     res
 }
 
+pub fn sorted<T: std::cmp::Ord + std::clone::Clone>(vals: &Vec<T>) -> Vec<T> {
+    let mut v = vals.clone();
+    v.sort();
+    v.to_vec()
+}
+
 /*
 fn as_base(data: &Vec<T>, base: T) -> T {
     //  println!("{:?}", ( data, base) );
