@@ -158,15 +158,14 @@ fn amph_allowed_move_to(amphs: &AmphLocs, a: Index) -> HashSet<Place> {
 }
 
 fn heuristic(amphs: &AmphLocs) -> Num {
-
     let mut score = Vec::new();
     for (i, group) in amphs.iter().enumerate() {
         for (j, c) in group.iter().enumerate() {
             let move_cost = (10 as Num).pow(i.try_into().unwrap());
-          //  let move_cost =( i+1) as i32;
-        //    let move_cost =( 1) as i32;
-          let hallway = (i) * 2 + 3;
-            let dist = ( (c.y as i32) - (hallway as i32) ).abs();
+            //  let move_cost =( i+1) as i32;
+            //    let move_cost =( 1) as i32;
+            let hallway = (i) * 2 + 3;
+            let dist = ((c.y as i32) - (hallway as i32)).abs();
             score.push(dist * move_cost)
         }
     }
@@ -246,6 +245,25 @@ fn adjacent_places(amphs: &AmphLocs, pos: Place) -> Vec<Place> {
         .collect()
 }
 
+fn display(amphs: &AmphLocs) -> () {
+    let size = 5;
+    let mut row = [0; 12].to_vec();
+    let mut res = Vec::new();
+    for _ in (0..size) {
+        res.push(row.clone());
+    }
+    //[row.clone(); 5].to_vec();
+    for (i, group) in amphs.iter().enumerate() {
+        for (j, c) in group.iter().enumerate() {
+            res[c.x as usize][c.y as usize] = i
+        }
+    }
+
+    for i in res {
+        println!("{:?}", i);
+    }
+}
+
 pub fn part1() -> Num {
     let (amphs, _) = get_data();
 
@@ -261,18 +279,14 @@ pub fn part1() -> Num {
     println!("{:?}", heuristic(&desired));
     println!("{:?}", heuristic(&amphs));
 
-
-    if let Some(res) =  dijkstra(&amphs, poss_moves, |a| *a == desired) {
-        let (a,b ) = res;
+    if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
+        let (a, b) = res;
         for i in a {
-            println!("{:?}", i);
-
+            display(&i);
         }
         println!("{:?}", b);
-
-
     }
-//    println!("{:?}", astar(&amphs, poss_moves,heuristic,  |a| *a == desired));
+    //    println!("{:?}", astar(&amphs, poss_moves,heuristic,  |a| *a == desired));
 
     todo!();
 }
