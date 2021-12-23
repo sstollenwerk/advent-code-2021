@@ -119,12 +119,15 @@ fn initialization_efficient(rows: &Vec<Row>) -> Num {
         cuboids.append(&mut new_cubes);
         intersections.append(&mut new_intersections);
 
-     //   println!("{:?}", r);
-     //   println!("{:?}", cuboids);
-    //    println!("{:?}", intersections);
+        //   println!("{:?}", r);
+        //   println!("{:?}", cuboids);
+        //    println!("{:?}", intersections);
 
-    //    println!("");
+        //    println!("");
     }
+
+    println!("{:?}", cuboids.len());
+    println!("{:?}", intersections.len());
 
     cuboids.into_iter().map(|c| size(c)).sum::<Num>()
         - intersections.into_iter().map(|c| size(c)).sum::<Num>()
@@ -155,17 +158,19 @@ pub fn part1() -> Num {
 
     vals.retain(|p| keep(*p));
 
-  //  let vals = vec![vals[10], vals[0], vals[10], vals[0], vals[10], vals[10], vals[10], vals[1], vals[3] ];
+    //  let vals = vec![vals[10], vals[0], vals[10], vals[0], vals[10], vals[10], vals[10], vals[1], vals[3] ];
     //println!("{:?}", vals);
 
-
-    assert_eq!(initialization_efficient(&vals),initialization_brute_force(&vals)  );
+    assert_eq!(
+        initialization_efficient(&vals),
+        initialization_brute_force(&vals)
+    );
 
     initialization_efficient(&vals)
     // todo!();
 }
 pub fn part2() -> Num {
-    let  vals = get_data();
+    let vals = get_data();
 
     initialization_efficient(&vals)
 }
