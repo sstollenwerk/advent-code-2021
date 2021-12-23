@@ -247,21 +247,26 @@ fn adjacent_places(amphs: &AmphLocs, pos: Place) -> Vec<Place> {
 
 fn display(amphs: &AmphLocs) -> () {
     let size = 5;
-    let mut row = [0; 12].to_vec();
+    let mut row = ['#'; 12].to_vec();
     let mut res = Vec::new();
     for _ in (0..size) {
         res.push(row.clone());
     }
+
+    for c in (*CAN_MOVE_ON).iter().map(|x| *x) {
+        res[c.x as usize][c.y as usize] = '.';
+    }
     //[row.clone(); 5].to_vec();
     for (i, group) in amphs.iter().enumerate() {
         for (j, c) in group.iter().enumerate() {
-            res[c.x as usize][c.y as usize] = i
+            res[c.x as usize][c.y as usize] = vec!['A', 'B', 'C', 'D'][i];
         }
     }
 
     for i in res {
-        println!("{:?}", i);
+        println!("{:?}", i.iter().cloned().collect::<String>());
     }
+    println!("");
 }
 
 pub fn part1() -> Num {
@@ -279,6 +284,7 @@ pub fn part1() -> Num {
     println!("{:?}", heuristic(&desired));
     println!("{:?}", heuristic(&amphs));
 
+    // if let Some(res) = astar(&amphs, poss_moves,heuristic,  |a| *a == desired) {
     if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
