@@ -152,7 +152,8 @@ fn amph_allowed_move_to(amphs: &AmphLocs, a: Index) -> HashSet<Place> {
             }
         }
     }
-    if a.0 == 1 {
+    let pos = amphs[a.0][a.1];
+    if pos.x == 1 {
         poss.retain(|p| p.x != 1);
     }
     if occupied {
@@ -278,6 +279,8 @@ pub fn part1() -> Num {
 
     println!("{:?}", amphs);
 
+    //  println!("{:?}", amph_move(&amphs, (1,0 ) )  );
+
     let desired = sort_state(&vec![
         vec![Place { x: 2, y: 3 }, Place { x: 3, y: 3 }],
         vec![Place { x: 2, y: 5 }, Place { x: 3, y: 5 }],
@@ -288,8 +291,8 @@ pub fn part1() -> Num {
     println!("{:?}", heuristic(&desired));
     println!("{:?}", heuristic(&amphs));
 
-    // if let Some(res) = astar(&amphs, poss_moves,heuristic,  |a| *a == desired) {
-    if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
+    if let Some(res) = astar(&amphs, poss_moves, heuristic, |a| *a == desired) {
+        //if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
             display(&i);
