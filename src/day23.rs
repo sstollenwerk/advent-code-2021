@@ -152,6 +152,9 @@ fn amph_allowed_move_to(amphs: &AmphLocs, a: Index) -> HashSet<Place> {
             }
         }
     }
+    if a.0 == 1 {
+        poss.retain(|p| p.x != 1);
+    }
     if occupied {
         poss = poss.difference(&hall).map(|x| *x).collect();
     }
@@ -248,7 +251,7 @@ fn adjacent_places(amphs: &AmphLocs, pos: Place) -> Vec<Place> {
 
 fn display(amphs: &AmphLocs) -> () {
     let size = amphs.concat().iter().map(|c| c.x).max().unwrap() + 3;
-    let mut row = ['#'; 12].to_vec();
+    let mut row = ['#'; 13].to_vec();
     let mut res = Vec::new();
     for _ in (0..size) {
         res.push(row.clone());
@@ -285,14 +288,14 @@ pub fn part1() -> Num {
     println!("{:?}", heuristic(&desired));
     println!("{:?}", heuristic(&amphs));
 
-    if let Some(res) = astar(&amphs, poss_moves,heuristic,  |a| *a == desired) {
-    //if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
+    // if let Some(res) = astar(&amphs, poss_moves,heuristic,  |a| *a == desired) {
+    if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
             display(&i);
         }
         println!("{}", b);
-        return b
+        return b;
     }
     //    println!("{:?}", astar(&amphs, poss_moves,heuristic,  |a| *a == desired));
 
@@ -304,22 +307,40 @@ pub fn part2() -> Num {
     println!("{:?}", amphs);
 
     let desired = sort_state(&vec![
-        vec![Place { x: 2, y: 3 }, Place { x: 3, y: 3 }, Place { x: 4, y: 3 }, Place { x: 5, y: 3 }],
-        vec![Place { x: 2, y: 5 }, Place { x: 3, y: 5 },Place { x: 4, y: 5 }, Place { x: 5, y: 5 },],
-        vec![Place { x: 2, y: 7 }, Place { x: 3, y: 7 },Place { x: 4, y: 7 }, Place { x: 5, y: 7 },],
-        vec![Place { x: 2, y: 9 }, Place { x: 3, y: 9 },Place { x: 4, y: 9 }, Place { x: 5, y: 9 },],
+        vec![
+            Place { x: 2, y: 3 },
+            Place { x: 3, y: 3 },
+            Place { x: 4, y: 3 },
+            Place { x: 5, y: 3 },
+        ],
+        vec![
+            Place { x: 2, y: 5 },
+            Place { x: 3, y: 5 },
+            Place { x: 4, y: 5 },
+            Place { x: 5, y: 5 },
+        ],
+        vec![
+            Place { x: 2, y: 7 },
+            Place { x: 3, y: 7 },
+            Place { x: 4, y: 7 },
+            Place { x: 5, y: 7 },
+        ],
+        vec![
+            Place { x: 2, y: 9 },
+            Place { x: 3, y: 9 },
+            Place { x: 4, y: 9 },
+            Place { x: 5, y: 9 },
+        ],
     ]);
 
-
-    if let Some(res) = astar(&amphs, poss_moves,heuristic, |a| *a == desired) {
+    if let Some(res) = astar(&amphs, poss_moves, heuristic, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
             display(&i);
         }
         println!("{}", b);
-        return b
+        return b;
     }
 
     panic!();
-
 }
