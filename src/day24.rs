@@ -50,10 +50,7 @@ fn interpret(prog: &Program, inputs: &Vec<Num>) -> Vec<Num> {
         };
 
         let k = match inst {
-            "inp" => {
-			
-			
-			b},
+            "inp" => b,
             "add" => a + b,
             "mul" => a * b,
             "div" => a / b,
@@ -64,26 +61,25 @@ fn interpret(prog: &Program, inputs: &Vec<Num>) -> Vec<Num> {
         };
         let val = data.entry(m).or_insert(0);
         *val = k;
-	    //println!("{:?}", r);
-		//let m = [ data[&"w"], data[&"x"], data[&"y"], data[&"z"] ];
-	    //println!("{:?}", m);
+        //println!("{:?}", r);
+        //let m = [ data[&"w"], data[&"x"], data[&"y"], data[&"z"] ];
+        //println!("{:?}", m);
     }
-	let m = [ data[&"w"], data[&"x"], data[&"y"], data[&"z"] ];
-	//    println!("{:?}", m);
+    let m = [data[&"w"], data[&"x"], data[&"y"], data[&"z"]];
+    //    println!("{:?}", m);
 
     m.to_vec()
 }
 
 fn prev(p_: &Inputs) -> Inputs {
-
-	// [13] +1 = [12]
+    // [13] +1 = [12]
     let mut p = p_.clone();
     let mut i = 0;
-	
-	let digits = [12,11,9,8,7,6,5,4,3,2,1,0].to_vec();
-	
+
+    let digits = [12, 11, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0].to_vec();
+
     loop {
-		let k = digits[i];
+        let k = digits[i];
         if p[k] == 1 {
             p[k] = 9;
             i += 1;
@@ -92,51 +88,68 @@ fn prev(p_: &Inputs) -> Inputs {
             break;
         }
     }
-	p[13] = p[12] - 1;
-	p[10] = p[9] - 1;
-	
-	
-	if p.contains(&0) { p = prev(&p)}
+    p[13] = p[12] - 1;
+    p[10] = p[9] - 1;
+
+    if p.contains(&0) {
+        p = prev(&p)
+    }
     p
+}
+
+fn get_human(data: &Vec<Row>) {
+    loop {
+        let mut line = String::new();
+        println!("Enter Monad attempt :");
+        std::io::stdin().read_line(&mut line).unwrap();
+        println!("{:?}", &line);
+
+        let mon: Inputs = line.chars().filter_map(|s| s.to_digit(10)).map(|n| n  as Num).collect();
+        println!("{:?}", mon);
+        let k = interpret(&data, &mon);
+
+        println!("{:?}", k);
+    }
 }
 
 pub fn part1() -> Num {
     let data = get_data();
     println!("{:?}", data);
-   // let mut item = vec![9; 14];
- let mut item = vec![9; 14];
-	item[13] = 10;
-//	item[1] = 1;
-	item[0] = 9;
+
+    get_human(&data);
+
+    // let mut item = vec![9; 14];
+    let mut item = vec![9; 14];
+    item[13] = 10;
+    //	item[1] = 1;
+    item[0] = 9;
 
     let items = from_fn(move || {
-	item = prev(&item);
-	Some(item.clone())
-}
-	);
-	
-	let mut prev_ = [-1, -1, -1, -1].to_vec();
-	
-	
+        item = prev(&item);
+        Some(item.clone())
+    });
+
+    let mut prev_ = [-1, -1, -1, -1].to_vec();
 
     let use_ = items;
     for i in use_.take(1100) {
         let k = interpret(&data, &i);
-		if prev_ != k {
-		 println!("{:?}", i);
-		 println!("{:?}", k);
-		prev_ = k.clone();
-		}
-		if k[3] == 0 {
-		let res = i.iter().map(|d| char::from_digit((*d).try_into().unwrap()  , 10).unwrap() ).collect::<String>();
-			 println!("{:?}", res);
-		
-		break}
-		
-    }
-	
+        if prev_ != k {
+            println!("{:?}", i);
+            println!("{:?}", k);
+            prev_ = k.clone();
+        }
+        if k[3] == 0 {
+            let res = i
+                .iter()
+                .map(|d| char::from_digit((*d).try_into().unwrap(), 10).unwrap())
+                .collect::<String>();
+            println!("{:?}", res);
 
-	
+            break;
+        }
+    }
+
     todo!();
 }
 
