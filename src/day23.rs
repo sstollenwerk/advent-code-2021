@@ -134,8 +134,26 @@ fn allowed_positions(amphs: &AmphLocs) -> HashSet<Place> {
 }
 
 fn amph_allowed_move_to(amphs: &AmphLocs, a: Index) -> HashSet<Place> {
-    let mut poss = allowed_positions(amphs);
     let hallway = (a.0) * 2 + 3;
+
+    let same_amph: Vec<Place> = (0..=5)
+        .filter_map(|x| amphs[a.0].get(x))
+        .map(|x| *x)
+        .collect();
+
+    let wrong_pos: Vec<Place> = same_amph
+        .into_iter()
+        .filter(|p| p.y != hallway.try_into().unwrap())
+        .collect();
+    if wrong_pos.len() == 0 {
+        return HashSet::new();
+    }
+
+    if sing_move_adj_state(amphs, a).len() == 0 {
+        return HashSet::new();
+    }
+
+    let mut poss = allowed_positions(amphs);
     poss.retain(|p| p.x == 1 || p.y == hallway.try_into().unwrap());
 
     let hall: HashSet<Place> = poss
@@ -147,18 +165,37 @@ fn amph_allowed_move_to(amphs: &AmphLocs, a: Index) -> HashSet<Place> {
     let mut occupied: bool = false;
     for (i, group) in amphs.iter().enumerate() {
         for c in group.iter() {
-            if i != a.0.try_into().unwrap() && hall.contains(c) {
+            if i != a.0.try_into().unwrap() && c.y == hallway.try_into().unwrap() {
                 occupied = true;
             }
         }
     }
+
     let pos = amphs[a.0][a.1];
     if pos.x == 1 {
         poss.retain(|p| p.x != 1);
     }
+
+    poss = poss
+        .iter()
+        .map(|x| *x)
+        .filter(|p| hall.contains(p) || !poss.contains(&(*p + Place::new(1, 0))))
+        .collect();
+
     if occupied {
         poss = poss.difference(&hall).map(|x| *x).collect();
+    } else {
+        if hall.len() > 0 {
+            poss = hall.clone();
+        }
     }
+
+    poss = poss
+        .iter()
+        .map(|x| *x)
+        .filter(|p| p.x == 1 || !poss.contains(&(*p + Place::new(1, 0))))
+        .collect();
+
     poss
 }
 
@@ -269,7 +306,7 @@ fn display(amphs: &AmphLocs) -> () {
     }
 
     for i in res {
-        println!("{:?}", i.iter().cloned().collect::<String>());
+        println!("{:}", i.iter().cloned().collect::<String>());
     }
     println!("");
 }
@@ -279,7 +316,9 @@ pub fn part1() -> Num {
 
     println!("{:?}", amphs);
 
-    //  println!("{:?}", amph_move(&amphs, (1,0 ) )  );
+    //  println!("{:?}", amph_allowed_move_to(&amphs, (3, 0)));
+
+    //  panic!();
 
     let desired = sort_state(&vec![
         vec![Place { x: 2, y: 3 }, Place { x: 3, y: 3 }],
@@ -291,10 +330,12 @@ pub fn part1() -> Num {
     println!("{:?}", heuristic(&desired));
     println!("{:?}", heuristic(&amphs));
 
-    if let Some(res) = astar(&amphs, poss_moves, heuristic, |a| *a == desired) {
-        //if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
+    // if let Some(res) = astar(&amphs, poss_moves, heuristic, |a| *a == desired) {
+    if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
+            //      println!("{:?}", amph_allowed_move_to(&i, (3, 0)));
+
             display(&i);
         }
         println!("{}", b);
@@ -336,7 +377,7 @@ pub fn part2() -> Num {
         ],
     ]);
 
-    if let Some(res) = astar(&amphs, poss_moves, heuristic, |a| *a == desired) {
+    if let Some(res) = dijkstra(&amphs, poss_moves, |a| *a == desired) {
         let (a, b) = res;
         for i in a {
             display(&i);
