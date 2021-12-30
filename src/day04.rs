@@ -4,6 +4,7 @@ use crate::lib::transpose;
 use std::fs;
 
 type Matrix<T> = Vec<Vec<T>>;
+
 type Bingo = Matrix<(i32, bool)>;
 
 fn get_data() -> (Vec<i32>, Vec<Bingo>) {
@@ -45,14 +46,12 @@ fn to_bingo(bin: Vec<i32>) -> Vec<(i32, bool)> {
     bin.iter().map(|c| (*c, false)).collect()
 }
 
-fn draw(s: Bingo, n: i32) -> Bingo {
-    let mut square = s.clone();
-    for i in 0..5 {
-        for j in 0..5 {
-            let cell = square[i][j];
+fn draw(mut square: Bingo, n: i32) -> Bingo {
+    for i in (0..square.len()) {
+        for j in (0..square[0].len()) {
+            let cell = square[i].get_mut(j).unwrap();
             if cell.0 == n {
-                let cell = (n, true);
-                square[i][j] = cell;
+                *cell = (n, true);
             }
         }
     }
